@@ -1,23 +1,50 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AuthForm.scss";
-import { IconName } from "react-icons/fi";
-import { FiEye } from "react-icons/fi";
-import { FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
   const [passwordError, setPasswordError] = useState("");
+  const [nameError, setNameError] = useState("");
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
 
   const navigate = useNavigate();
 
+  // ✅ Name validation function
+  const validateName = (name) => {
+    const nameRegex = /^[A-Za-z]+([ '-][A-Za-z]+)*$/; // still allow only letters, spaces, hyphens, apostrophes
+    if (!name) return "Name is required";
+    if (name.length < 2) return "Name must be at least 2 characters";
+    if (name.length > 50) return "Name must not exceed 50 characters";
+    if (!nameRegex.test(name)) return "Invalid name format";
+
+    // 🚨 Extra check: ensure each word is either all upper OR all lower
+    const words = name.split(" ");
+    for (let word of words) {
+      if (!(word === word.toUpperCase() || word === word.toLowerCase())) {
+        return "Each word must be either all uppercase or all lowercase (no mixed case)";
+      }
+    }
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    if (name === "password" && activeTab === "signup") validatePassword(value);
+
+    if (name === "fullName") {
+      // Trim multiple spaces but allow single spaces
+      const cleanValue = value.replace(/\s{2,}/g, " ");
+      setFormData({ ...formData, [name]: cleanValue });
+      setNameError(validateName(cleanValue));
+    } else if (name === "password" && activeTab === "signup") {
+      setFormData({ ...formData, [name]: value });
+      validatePassword(value);
+    } else {
+      setFormData({ ...formData, [name]: value.trim() });
+    }
   };
 
   const validatePassword = (password) => {
@@ -36,10 +63,23 @@ export default function AuthForm() {
     e.preventDefault();
     setFormMessage({ type: "", text: "" });
 
-    if (activeTab === "signup" && passwordError) {
-      setFormMessage({ type: "error", text: "Fix password errors before submitting." });
-      return;
+    if (activeTab === "signup") {
+      const nameValidationError = validateName(formData.fullName);
+      if (nameValidationError) {
+        setNameError(nameValidationError);
+        return;
+      }
+      if (passwordError) {
+        setFormMessage({ type: "error", text: "Fix password errors before submitting." });
+        return;
+      }
     }
+
+    // 🔹 Normalize name before submission (ALL CAPS)
+    const normalizedFormData = {
+      ...formData,
+      fullName: formData.fullName.toUpperCase(), // change to .toLowerCase() for all small
+    };
 
     const endpoint =
       activeTab === "signup"
@@ -50,36 +90,28 @@ export default function AuthForm() {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(normalizedFormData),
       });
 
-      const data = await res.json(); // ✅ use data inside try block
+      const data = await res.json();
 
       if (!res.ok) {
         setFormMessage({ type: "error", text: data.error || "Something went wrong." });
         return;
       }
 
-      // Store user name for dashboard
-     if (activeTab === "signup") {
-      localStorage.setItem("userName", formData.fullName);
-      // Switch to login tab after successful signup
-      setFormMessage({ type: "success", text: data.message + " Redirecting to login..." });
-      setTimeout(() => switchTab("login"), 1000); // 1-second delay for user to see message
-    } else if (activeTab === "login") {
-      localStorage.setItem("userName", data.user?.fullName || "User");
-      setFormMessage({ type: "success", text: data.message });
-      setTimeout(() => navigate("/dashboard"), 500);
-    }
-
-
-
-      setFormMessage({ type: "success", text: data.message });
-      setFormData({ fullName: "", email: "", password: "" });
-
-      if (activeTab === "login") {
+      // Store user name in localStorage
+      if (activeTab === "signup") {
+        localStorage.setItem("userName", normalizedFormData.fullName);
+        setFormMessage({ type: "success", text: data.message + " Redirecting to login..." });
+        setTimeout(() => switchTab("login"), 1000);
+      } else if (activeTab === "login") {
+        localStorage.setItem("userName", data.user?.fullName?.toUpperCase() || "USER");
+        setFormMessage({ type: "success", text: data.message });
         setTimeout(() => navigate("/dashboard"), 500);
       }
+
+      setFormData({ fullName: "", email: "", password: "" });
     } catch (err) {
       console.error("Network error:", err);
       setFormMessage({ type: "error", text: "A network error occurred. Try again." });
@@ -89,6 +121,7 @@ export default function AuthForm() {
   const switchTab = (tab) => {
     setActiveTab(tab);
     setPasswordError("");
+    setNameError("");
     setFormMessage({ type: "", text: "" });
   };
 
@@ -122,6 +155,7 @@ export default function AuthForm() {
                 onChange={handleChange}
                 required
               />
+              {nameError && <p className="error-text">{nameError}</p>}
             </div>
           )}
 
@@ -147,12 +181,17 @@ export default function AuthForm() {
               onChange={handleChange}
               required
             />
-            <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
               {showPassword ? <FiEye /> : <FiEyeOff />}
             </span>
           </div>
 
-          {activeTab === "signup" && passwordError && <p className="error-text">{passwordError}</p>}
+          {activeTab === "signup" && passwordError && (
+            <p className="error-text">{passwordError}</p>
+          )}
           {formMessage.text && (
             <p className={formMessage.type === "error" ? "error-text" : "success-text"}>
               {formMessage.text}
