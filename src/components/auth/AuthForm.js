@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./AuthForm.scss";
+import { IconName } from "react-icons/fi";
+import { FiEye } from "react-icons/fi";
+import { FiEyeOff } from "react-icons/fi";
 
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: ""
-  });
+  const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
   const [passwordError, setPasswordError] = useState("");
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
 
@@ -17,16 +17,12 @@ export default function AuthForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
-    if (name === "password" && activeTab === "signup") {
-      validatePassword(value);
-    }
+    if (name === "password" && activeTab === "signup") validatePassword(value);
   };
 
   const validatePassword = (password) => {
     const strongRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
     if (!strongRegex.test(password)) {
       setPasswordError(
         "Password must be at least 8 characters, include uppercase, lowercase, number & special character."
@@ -54,49 +50,66 @@ export default function AuthForm() {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      const data = await res.json(); // ✅ use data inside try block
 
       if (!res.ok) {
         setFormMessage({ type: "error", text: data.error || "Something went wrong." });
         return;
       }
 
+      // Store user name for dashboard
+     if (activeTab === "signup") {
+      localStorage.setItem("userName", formData.fullName);
+      // Switch to login tab after successful signup
+      setFormMessage({ type: "success", text: data.message + " Redirecting to login..." });
+      setTimeout(() => switchTab("login"), 1000); // 1-second delay for user to see message
+    } else if (activeTab === "login") {
+      localStorage.setItem("userName", data.user?.fullName || "User");
       setFormMessage({ type: "success", text: data.message });
+      setTimeout(() => navigate("/dashboard"), 500);
+    }
+
+
+
+      setFormMessage({ type: "success", text: data.message });
+      setFormData({ fullName: "", email: "", password: "" });
 
       if (activeTab === "login") {
-        setTimeout(() => navigate("/dashboard"), 1500); // wait so user can read message
+        setTimeout(() => navigate("/dashboard"), 500);
       }
-
-      setFormData({ fullName: "", email: "", password: "" });
     } catch (err) {
       console.error("Network error:", err);
       setFormMessage({ type: "error", text: "A network error occurred. Try again." });
     }
   };
 
+  const switchTab = (tab) => {
+    setActiveTab(tab);
+    setPasswordError("");
+    setFormMessage({ type: "", text: "" });
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
-        {/* Tabs */}
         <div className="tabs">
           <button
             className={activeTab === "login" ? "active" : ""}
-            onClick={() => setActiveTab("login")}
+            onClick={() => switchTab("login")}
           >
             Login
           </button>
           <button
             className={activeTab === "signup" ? "active" : ""}
-            onClick={() => setActiveTab("signup")}
+            onClick={() => switchTab("signup")}
           >
             Sign Up
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           {activeTab === "signup" && (
             <div className="form-group">
@@ -134,27 +147,19 @@ export default function AuthForm() {
               onChange={handleChange}
               required
             />
-            <span
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
+            <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FiEye /> : <FiEyeOff />}
             </span>
           </div>
 
-          {/* Password error */}
-          {activeTab === "signup" && passwordError && (
-            <p className="error-text">{passwordError}</p>
-          )}
-
-          {/* Form-wide messages */}
+          {activeTab === "signup" && passwordError && <p className="error-text">{passwordError}</p>}
           {formMessage.text && (
             <p className={formMessage.type === "error" ? "error-text" : "success-text"}>
               {formMessage.text}
             </p>
           )}
 
-          <button type="submit" className="submit-btn">
+          <button type="submit" className="common-btn">
             {activeTab === "login" ? "Login" : "Sign Up"}
           </button>
         </form>
