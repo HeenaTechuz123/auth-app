@@ -1,9 +1,10 @@
 .navbar {
 	position: fixed;
 	top: 0;
-  left: 0;
+  	left: 0;
 	z-index: 100;
-  width: 100%;
+  	width: 100%;
+	background: var(--blue);
   .container {
     display: flex;
     justify-content: space-between;

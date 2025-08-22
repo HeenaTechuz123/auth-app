@@ -1,53 +1,43 @@
-import React, { useState, useEffect } from "react";
+// src/components/navbar/Navbar.js
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.scss";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); // mobile menu
-  const [submenuOpen, setSubmenuOpen] = useState(null); // track which submenu is open
-  const [user, setUser] = useState(null); // store logged-in user
+  const [isOpen, setIsOpen] = useState(false);
+  const [submenuOpen, setSubmenuOpen] = useState(null);
+
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // get user info from localStorage
-    const storedUser = localStorage.getItem("userName");
-    if (storedUser) {
-      setUser(storedUser);
-    }
-  }, []);
-
   const toggleSubmenu = (menu) => {
-    if (submenuOpen === menu) {
-      setSubmenuOpen(null);
-    } else {
-      setSubmenuOpen(menu);
-    }
+    setSubmenuOpen(submenuOpen === menu ? null : menu);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userName");
-    setUser(null);
-    navigate("/"); // redirect to home/login page
+    logout();
+    navigate("/"); // redirect to login
   };
 
   return (
     <nav className="navbar">
       <div className="container">
-        {/* Logo */}
         <Link to="/" className="nav-logo">
           <span>whitepace</span>
         </Link>
 
-        {/* Hamburger for mobile */}
         <div className="menu-icon" onClick={() => setIsOpen(!isOpen)}>
           <i className={isOpen ? "fas fa-times" : "fas fa-bars"}></i>
         </div>
 
-        {/* Main Menu */}
         <ul className={isOpen ? "nav-menu active" : "nav-menu"}>
-          {/* Products */}
+          {/* Example Menus */}
+           <li className="nav-item">
+              <Link to="/" className="nav-link">Home</Link>
+           </li>
           <li className="nav-item">
-            <button 
+            <button
               className="nav-link dropdown-toggle"
               onClick={() => toggleSubmenu("products")}
             >
@@ -58,55 +48,43 @@ export default function Navbar() {
               <li><Link to="/products/b">Product B</Link></li>
               <li><Link to="/products/c">Product C</Link></li>
             </ul>
-          </li>
+          </li>         
 
-          {/* Solutions */}
-          <li className="nav-item">
-            <button 
+         <li className="nav-item">
+            <button
               className="nav-link dropdown-toggle"
               onClick={() => toggleSubmenu("solutions")}
             >
               Solutions ▾
             </button>
             <ul className={`submenu ${submenuOpen === "solutions" ? "show" : ""}`}>
-              <li><Link to="/solutions/a">Solution A</Link></li>
-              <li><Link to="/solutions/b">Solution B</Link></li>
+              <li><Link to="/products/a">Solutions A</Link></li>
+              <li><Link to="/products/b">Solutions B</Link></li>
+              <li><Link to="/products/c">Solutions C</Link></li>
             </ul>
-          </li>
+          </li>   
 
-          {/* Resources */}
-          <li className="nav-item">
-            <button 
-              className="nav-link dropdown-toggle"
-              onClick={() => toggleSubmenu("resources")}
-            >
-              Resources ▾
-            </button>
-            <ul className={`submenu ${submenuOpen === "resources" ? "show" : ""}`}>
-              <li><Link to="#">Docs</Link></li>
-              <li><Link to="#">Blog</Link></li>
-              <li><Link to="#">Help Center</Link></li>
-            </ul>
-          </li>
-
-          {/* Pricing */}
-          <li className="nav-item">
-            <Link to="#" className="nav-link">Pricing</Link>
-          </li>
-
-          {/* Auth Buttons */}
+          {/* User Section */}
           {user ? (
             <>
-              <li className="nav-item username">Hi, <strong>{user}</strong></li>
+              <li className="nav-item username">
+                    <button
+                      className="nav-link dropdown-toggle"
+                      onClick={() => toggleSubmenu("account")}
+                    >
+                      Hi, <strong>{user || "Guest"}</strong>
+                    </button>
+                    <ul className={`submenu ${submenuOpen === "solutions" ? "show" : ""}`}>
+                      <li><Link to="/profile">My Account</Link></li>
+                    </ul>
+                  </li>   
               <li>
-                <button onClick={handleLogout} className="btn-login">
-                  Logout
-                </button>
+                <button onClick={handleLogout} className="btn-login">Logout</button>
               </li>
             </>
           ) : (
             <li>
-              <Link to="/" className="btn-login">Login</Link>
+              <Link to="/login" className="btn-login">Login</Link>
             </li>
           )}
         </ul>

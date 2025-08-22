@@ -44,8 +44,8 @@ export default function Dashboard() {
     //     Logout
     //   </button>
     // </div>
-    <div className="main">
-      {/* baaner section */}
+  
+    
       <section className="banner">
         <div className="container">
           <div className="banner__content">
@@ -64,6 +64,6 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
-    </div>
+   
   );
 }
