@@ -6,6 +6,8 @@ import Navbar from "./components/navbar/Navbar";
 import Dashboard from "./components/dashboard/Dashboard";
 import { AuthProvider } from "./context/AuthContext";
 import MyAccount from "./components/myaccount/MyAccount";
+import BusinessDetails from "./components/business/BusinessDetails";
+import BusinessList from "./components/business/BusinessList";
 
 function AppContent() {
   const location = useLocation();
@@ -26,6 +28,8 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/profile" element={<MyAccount />} />
+            <Route path="/businesses" element={<BusinessList />} />
+            <Route path="/business/:id" element={<BusinessDetails />} />
           </Routes>
         </div>
       )}

@@ -19,6 +19,7 @@
 	backdrop-filter: blur(15px);
 	padding: 2rem;
 	width: 360px;
+	max-width: 90vw;
 	animation: fadeIn 0.5s ease-out;
 	color: #fff;
 	button{
@@ -44,8 +45,8 @@
 		cursor: pointer;
 	    font-size: 14px;
 		&.active {
-			background: #6c8cff;
-			color: white;
+			background: var(--yellow);
+			color: var(--blue);
 			box-shadow: 0 6px 20px rgba(108, 140, 255, .45);
 		}
 		&:hover {
@@ -160,4 +161,105 @@
 .success-text{
   color: green;
   font-size: 12px;
+}
+
+/* Responsive Design for AuthForm */
+@media (max-width: 768px) {
+  .auth-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 16px;
+  }
+
+  .tabs {
+    margin-bottom: 16px;
+    
+    button {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 0.8rem;
+    
+    label {
+      font-size: 13px;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+  }
+
+  .toggle-password {
+    top: 37px;
+    right: 10px;
+    font-size: 0.9rem;
+  }
+
+  .common-btn {
+    padding: 0.7rem;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .auth-card {
+    padding: 1.25rem;
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 0.5rem;
+  }
+
+  .tabs {
+    margin-bottom: 14px;
+    width: 100%;
+    
+    button {
+      padding: 7px 10px;
+      font-size: 12px;
+      flex: 1;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 0.7rem;
+    
+    label {
+      font-size: 12px;
+    }
+
+    input {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+  }
+
+  .toggle-password {
+    top: 35px;
+    right: 8px;
+    font-size: 0.8rem;
+  }
+
+  .common-btn {
+    padding: 0.6rem;
+    font-size: 13px;
+  }
+
+  .error-text,
+  .success-text {
+    font-size: 11px;
+  }
 }

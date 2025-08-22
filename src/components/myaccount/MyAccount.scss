@@ -3,13 +3,14 @@
   width: 100%;
   height: auto;
   background: #fff;
+  
   .profile-pic{
     position: relative;
   }
 
   .cover-photo {
     width: 100%;
-    height: 300px; // adjust as needed
+    height: 300px;
     overflow: hidden;
 
     img {
@@ -56,11 +57,10 @@
     h3 {
       font-size: 18px;
       margin-bottom: 15px;
-      color: #007bff;
+      color: var(--blue2);
       display: grid;
       grid-column: span 2;
     }
-
 
     .form-group {
       display: flex;
@@ -81,7 +81,8 @@
         font-size: 14px;
 
         &:focus {
-          border-color: #007bff;
+          border-color: var(--blue2);
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
       }
     }
@@ -95,13 +96,129 @@
     font-weight: bold;
     border: none;
     border-radius: 8px;
-    background: #007bff;
+    background: var(--blue2);
     color: #fff;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s;
 
     &:hover {
       background: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Responsive Design for MyAccount */
+@media (max-width: 1024px) {
+  .profile-form {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 60px;
+    
+    .form-section {
+      padding: 18px;
+      gap: 12px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-page {
+    .cover-photo {
+      height: 200px;
+      border-radius: 0;
+    }
+
+    .profile-section {
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -40px;
+
+      .profile-img {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  }
+
+  .profile-form {
+    margin-top: 50px;
+    padding: 0 1rem;
+    gap: 20px;
+    
+    .form-section {
+      grid-template-columns: 1fr;
+      padding: 16px;
+      gap: 8px;
+
+      h3 {
+        font-size: 16px;
+        grid-column: span 1;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+
+        label {
+          font-size: 13px;
+        }
+
+        input {
+          padding: 8px;
+          font-size: 13px;
+        }
+      }
+    }
+
+    .save-btn {
+      padding: 10px;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-page {
+    .cover-photo {
+      height: 150px;
+    }
+
+    .profile-section {
+      bottom: -30px;
+
+      .profile-img {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  }
+
+  .profile-form {
+    margin-top: 40px;
+    padding: 0 0.5rem;
+    
+    .form-section {
+      padding: 12px;
+
+      h3 {
+        font-size: 15px;
+        margin-bottom: 12px;
+      }
+
+      .form-group {
+        margin-bottom: 10px;
+
+        input {
+          padding: 6px;
+          font-size: 12px;
+        }
+      }
     }
   }
 }

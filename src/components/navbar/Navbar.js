@@ -15,9 +15,37 @@ export default function Navbar() {
     setSubmenuOpen(submenuOpen === menu ? null : menu);
   };
 
+  const handleSubmenuClick = (menu, event) => {
+    // Prevent any default behavior and event bubbling
+    event.preventDefault();
+    event.stopPropagation();
+    // For mobile, toggle submenu visibility
+    toggleSubmenu(menu);
+  };
+
   const handleLogout = () => {
     logout();
+    setIsOpen(false); // Close mobile menu
     navigate("/"); // redirect to login
+  };
+
+  const handleNavClick = () => {
+    setIsOpen(false); // Close mobile menu when nav item is clicked
+  };
+
+  // Close mobile menu when clicking outside
+  const handleMenuOutsideClick = (event) => {
+    if (event.target.classList.contains('nav-menu') && event.target.classList.contains('active')) {
+      setIsOpen(false);
+    }
+  };
+
+  // Close menu when clicking on backdrop
+  const handleBackdropClick = (event) => {
+    // Only close if clicking directly on backdrop, not on menu content
+    if (event.target === event.currentTarget) {
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -28,40 +56,51 @@ export default function Navbar() {
         </Link>
 
         <div className="menu-icon" onClick={() => setIsOpen(!isOpen)}>
-          <i className={isOpen ? "fas fa-times" : "fas fa-bars"}></i>
+          <span className={isOpen ? "close" : "hamburger"}>
+            {isOpen ? "✕" : "☰"}
+          </span>
         </div>
 
-        <ul className={isOpen ? "nav-menu active" : "nav-menu"}>
+        {/* Mobile backdrop */}
+        {isOpen && <div className="mobile-backdrop" onClick={handleBackdropClick}></div>}
+        
+        <ul className={isOpen ? "nav-menu active" : "nav-menu"} onClick={handleMenuOutsideClick}>
           {/* Example Menus */}
            <li className="nav-item">
-              <Link to="/" className="nav-link">Home</Link>
+              <Link to="/" className="nav-link" onClick={handleNavClick}>Home</Link>
            </li>
           <li className="nav-item">
             <button
               className="nav-link dropdown-toggle"
-              onClick={() => toggleSubmenu("products")}
+              onClick={(e) => handleSubmenuClick("products", e)}
+              type="button"
             >
               Products ▾
             </button>
             <ul className={`submenu ${submenuOpen === "products" ? "show" : ""}`}>
-              <li><Link to="/products/a">Product A</Link></li>
-              <li><Link to="/products/b">Product B</Link></li>
-              <li><Link to="/products/c">Product C</Link></li>
+              <li><Link to="/products/a" onClick={handleNavClick}>Product A</Link></li>
+              <li><Link to="/products/b" onClick={handleNavClick}>Product B</Link></li>
+              <li><Link to="/products/c" onClick={handleNavClick}>Product C</Link></li>
             </ul>
           </li>         
 
          <li className="nav-item">
             <button
               className="nav-link dropdown-toggle"
-              onClick={() => toggleSubmenu("solutions")}
+              onClick={(e) => handleSubmenuClick("solutions", e)}
+              type="button"
             >
               Solutions ▾
             </button>
             <ul className={`submenu ${submenuOpen === "solutions" ? "show" : ""}`}>
-              <li><Link to="/products/a">Solutions A</Link></li>
-              <li><Link to="/products/b">Solutions B</Link></li>
-              <li><Link to="/products/c">Solutions C</Link></li>
+              <li><Link to="/products/a" onClick={handleNavClick}>Solutions A</Link></li>
+              <li><Link to="/products/b" onClick={handleNavClick}>Solutions B</Link></li>
+              <li><Link to="/products/c" onClick={handleNavClick}>Solutions C</Link></li>
             </ul>
+          </li>
+
+          <li className="nav-item">
+            <Link to="/businesses" className="nav-link" onClick={handleNavClick}>Businesses</Link>
           </li>   
 
           {/* User Section */}
@@ -70,12 +109,13 @@ export default function Navbar() {
               <li className="nav-item username">
                     <button
                       className="nav-link dropdown-toggle"
-                      onClick={() => toggleSubmenu("account")}
+                      onClick={(e) => handleSubmenuClick("account", e)}
+                      type="button"
                     >
-                      Hi, <strong>{user || "Guest"}</strong>
+                      Hi, <strong>{user || "Guest"}</strong> ▾
                     </button>
-                    <ul className={`submenu ${submenuOpen === "solutions" ? "show" : ""}`}>
-                      <li><Link to="/profile">My Account</Link></li>
+                    <ul className={`submenu ${submenuOpen === "account" ? "show" : ""}`}>
+                      <li><Link to="/profile" onClick={handleNavClick}>My Account</Link></li>
                     </ul>
                   </li>   
               <li>
@@ -84,7 +124,7 @@ export default function Navbar() {
             </>
           ) : (
             <li>
-              <Link to="/login" className="btn-login">Login</Link>
+              <Link to="/login" className="btn-login" onClick={handleNavClick}>Login</Link>
             </li>
           )}
         </ul>
