@@ -40,7 +40,7 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename={process.env.PUBLIC_URL}>
+      <BrowserRouter basename={import.meta.env.PROD ? '/auth-app' : '/'}>
         <AppContent />
       </BrowserRouter>
     </AuthProvider>

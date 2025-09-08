@@ -10,6 +10,14 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
   const [passwordError, setPasswordError] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false
+  });
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
@@ -42,16 +50,73 @@ export default function AuthForm() {
     return "";
   };
 
-  // ✅ Password validation
+  // ✅ Enhanced password validation with strength meter
   const validatePassword = (password) => {
-    const strongRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!strongRegex.test(password)) {
-      setPasswordError(
-        "Password must be at least 8 chars, include uppercase, lowercase, number & special char."
-      );
+    if (!password) {
+      setPasswordError("");
+      setPasswordStrength(0);
+      setPasswordCriteria({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false
+      });
+      return;
+    }
+
+    const criteria = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[@$!%*?&#+\-_=<>{}\[\]|~`^().,;:'"\/\\]/.test(password)
+    };
+
+    setPasswordCriteria(criteria);
+
+    const metCriteria = Object.values(criteria).filter(Boolean).length;
+    const strength = Math.min(metCriteria, 5);
+    setPasswordStrength(strength);
+
+    // Additional strength checks
+    let strengthBonus = 0;
+    if (password.length >= 12) strengthBonus += 0.5;
+    if (password.length >= 16) strengthBonus += 0.5;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) strengthBonus += 0.5;
+    if (!/(..).*\1/.test(password)) strengthBonus += 0.5; // No repeated patterns
+    
+    const finalStrength = Math.min(strength + strengthBonus, 5);
+    setPasswordStrength(finalStrength);
+
+    // Set error messages based on missing criteria
+    const missingCriteria = [];
+    if (!criteria.length) missingCriteria.push("at least 8 characters");
+    if (!criteria.uppercase) missingCriteria.push("uppercase letter");
+    if (!criteria.lowercase) missingCriteria.push("lowercase letter");
+    if (!criteria.number) missingCriteria.push("number");
+    if (!criteria.special) missingCriteria.push("special character");
+
+    if (missingCriteria.length > 0) {
+      setPasswordError(`Password needs: ${missingCriteria.join(", ")}`);
     } else {
       setPasswordError("");
+    }
+
+    // Check for common weak patterns
+    const weakPatterns = [
+      /123456/,
+      /password/i,
+      /qwerty/i,
+      /abc123/i,
+      /(.)\1{2,}/, // repeated characters
+      /^[a-zA-Z]+$/, // only letters
+      /^\d+$/ // only numbers
+    ];
+
+    const hasWeakPattern = weakPatterns.some(pattern => pattern.test(password));
+    if (hasWeakPattern && missingCriteria.length === 0) {
+      setPasswordError("Password contains common patterns. Use a stronger combination.");
     }
   };
 
@@ -131,7 +196,17 @@ export default function AuthForm() {
         setFormMessage({ type: "success", text: data.message + " Redirecting to login..." });
         setTimeout(() => switchTab("login"), 1000);
       } else if (activeTab === "login") {
-          login(data.user?.fullName || formData.fullName || formData.email.split("@")[0]);
+          // Save userId to localStorage for MyAccount page
+          localStorage.setItem("userId", data.id);
+          localStorage.setItem("userName", data.fullName);
+          login({
+              id: data.id,
+              fullName: data.fullName,
+              email: data.email,
+              profile_pic: data.profile_pic || null,
+            });
+            navigate("/"); // redirect to home
+
           setFormMessage({ type: "success", text: data.message });
           setTimeout(() => navigate("/"), 500);
       }
@@ -150,12 +225,20 @@ export default function AuthForm() {
     setNameError("");
     setEmailError("");
     setFormMessage({ type: "", text: "" });
+    setPasswordStrength(0);
+    setPasswordCriteria({
+      length: false,
+      uppercase: false,
+      lowercase: false,
+      number: false,
+      special: false
+    });
   };
 
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="tabs">
+        <div className={`tabs ${activeTab === "signup" ? "signup-active" : ""}`}>
           <button
             className={activeTab === "login" ? "active" : ""}
             onClick={() => switchTab("login")}
@@ -170,7 +253,7 @@ export default function AuthForm() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form noValidate onSubmit={handleSubmit} className="auth-form" key={activeTab}>
           {activeTab === "signup" && (
             <div className="form-group">
               <label>Full Name</label>
@@ -217,8 +300,48 @@ export default function AuthForm() {
             </span>
           </div>
 
-          {activeTab === "signup" && passwordError && (
-            <p className="error-text">{passwordError}</p>
+          {activeTab === "signup" && (
+            <div className="password-validation">
+              {formData.password && (
+                <div className="password-strength-meter">
+                  <div className="strength-bar">
+                    <div 
+                      className={`strength-fill strength-${passwordStrength <= 2 ? 'weak' : passwordStrength <= 3 ? 'medium' : 'strong'}`}
+                      style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="strength-text">
+                    {passwordStrength <= 2 && 'Weak'}
+                    {passwordStrength === 3 && 'Medium'}
+                    {passwordStrength >= 4 && 'Strong'}
+                  </div>
+                </div>
+              )}
+              
+              {formData.password && (
+                <div className="password-criteria">
+                  <div className={`criteria ${passwordCriteria.length ? 'met' : 'unmet'}`}>
+                    ✓ At least 8 characters
+                  </div>
+                  <div className={`criteria ${passwordCriteria.uppercase ? 'met' : 'unmet'}`}>
+                    ✓ Uppercase letter
+                  </div>
+                  <div className={`criteria ${passwordCriteria.lowercase ? 'met' : 'unmet'}`}>
+                    ✓ Lowercase letter
+                  </div>
+                  <div className={`criteria ${passwordCriteria.number ? 'met' : 'unmet'}`}>
+                    ✓ Number
+                  </div>
+                  <div className={`criteria ${passwordCriteria.special ? 'met' : 'unmet'}`}>
+                    ✓ Special character
+                  </div>
+                </div>
+              )}
+              
+              {passwordError && (
+                <p className="error-text">{passwordError}</p>
+              )}
+            </div>
           )}
           {formMessage.text && (
             <p className={formMessage.type === "error" ? "error-text" : "success-text"}>

@@ -20,7 +20,6 @@
     }
     
     p {
-      font-size: 1.2rem;
       color: #6b7280;
     }
   }
@@ -39,15 +38,23 @@
 
       .search-input {
         flex: 1;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e5e7eb;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #e2e8f0;
         border-radius: 8px;
         font-size: 1rem;
-        transition: border-color 0.2s ease;
+        outline: none;
+        transition: all 0.3s ease;
 
         &:focus {
-          outline: none;
           border-color: var(--blue2);
+          box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+          background: #fff;
+          transform: translateY(-1px);
+        }
+        
+        &:hover:not([readonly]) {
+          border-color: #cbd5e1;
         }
       }
 
@@ -82,17 +89,24 @@
 
         select {
           width: 100%;
-          padding: 0.75rem;
-          border: 2px solid #e5e7eb;
+          padding: 10px 16px;
+          background: rgba(255, 255, 255, 0.9);
+          border: 2px solid #e2e8f0;
           border-radius: 8px;
           font-size: 1rem;
-          background: white;
+          outline: none;
           cursor: pointer;
-          transition: border-color 0.2s ease;
+          transition: all 0.3s ease;
 
           &:focus {
-            outline: none;
             border-color: var(--blue2);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            background: #fff;
+            transform: translateY(-1px);
+          }
+          
+          &:hover:not([readonly]) {
+            border-color: #cbd5e1;
           }
         }
       }
@@ -104,7 +118,6 @@
     
     p {
       color: #6b7280;
-      font-size: 1rem;
     }
   }
 
@@ -323,7 +336,6 @@
 
     p {
       color: #6b7280;
-      font-size: 1.1rem;
     }
   }
 
@@ -389,9 +401,6 @@
         font-size: 2.2rem;
       }
       
-      p {
-        font-size: 1.1rem;
-      }
     }
   }
 }
@@ -411,9 +420,6 @@
         font-size: 2rem;
       }
       
-      p {
-        font-size: 1rem;
-      }
     }
     
     .businesses-grid {
@@ -546,9 +552,6 @@
         font-size: 1.75rem;
       }
       
-      p {
-        font-size: 0.9rem;
-      }
     }
     
     .businesses-grid {

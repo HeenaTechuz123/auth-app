@@ -3,7 +3,8 @@
 :root{
   --blue: #0b1020;
   --blue2:#4f46e5;
-  --yellow:#ffe08a;
+  --yellow:#e9af47;
+  --white:#fff;
   --font: "Poppins", sans-serif;
 
   --containerWidth : 1440px;
@@ -21,6 +22,13 @@ body {
   font-family: var(--font);
   font-size: 14px;
   overflow-x: hidden;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #64748b;
+  margin: 0 0 1rem 0;
 }
 button{
   font-family: var(--font);
@@ -43,7 +51,7 @@ a{
 .common-btn {
 	width: auto;
 	padding: 0.8rem;
-	background: var(--blue2);
+	background: linear-gradient(135deg, #3b82f6 0%, #9333ea 100%);
 	color: white;
 	box-shadow: 0 10px 30px rgba(108, 140, 255, .45);
 	font-weight: 600;
@@ -52,6 +60,11 @@ a{
 	cursor: pointer;
 	margin-top: 0.5rem;
 	transition: transform 0.2s, box-shadow 0.3s;
+  &:disabled{
+    pointer-events: none;
+    background-color: #8d8d8d;
+    box-shadow: 0 10px 30px rgba(141, 141, 141, 0.38);
+  }
 	&:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 8px 18px rgba(108, 140, 255, .25);
@@ -59,7 +72,7 @@ a{
 }
 
 .main{
-  padding-block: 83px 30px;
+  padding-block: 70px 0;
   
   @media (max-width: 768px) {
     padding-block: 80px 20px;
@@ -71,6 +84,75 @@ a{
 // Tablet: 768px - 1023px  
 // Desktop: 1024px+
 
+/* Common Input Styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+
+  label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--white);
+    letter-spacing: 0.01em;
+  }
+
+  input, select, textarea {
+    padding: 10px 16px;
+    border: 2px solid #e2e8f0;
+    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    font-family: var(--font);
+
+    &:focus {
+      border-color: var(--blue2);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      background: #fff;
+      transform: translateY(-1px);
+    }
+    
+    &:hover:not([readonly]) {
+      border-color: #cbd5e1;
+    }
+    
+    &[readonly] {
+      background-color: #f1f5f9;
+      color: #64748b;
+      border-color: #e2e8f0;
+      cursor: not-allowed;
+      
+      &:focus {
+        border-color: #e2e8f0;
+        box-shadow: none;
+        transform: none;
+      }
+    }
+    
+    &.error {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+      
+      &:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+      }
+    }
+  }
+
+}
+.error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 6px;
+    display: block;
+    font-weight: 500;
+    padding: 6px 12px;
+    background: rgba(239, 68, 68, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #ef4444;
+}
 /* Responsive Typography */
 @media (max-width: 768px) {
   body {
